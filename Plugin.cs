@@ -1,4 +1,5 @@
 ﻿using BepInEx;
+using BepInEx.Bootstrap;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
@@ -7,10 +8,13 @@ using UnityEngine;
 namespace HalloweenElevator
 {
     [BepInPlugin(PLUGIN_GUID, PLUGIN_NAME, PLUGIN_VERSION)]
+    [BepInDependency(GUID_LOBBY_COMPATIBILITY, BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BaseUnityPlugin
     {
-        const string PLUGIN_GUID = "butterystancakes.lethalcompany.halloweenelevator", PLUGIN_NAME = "Halloween Elevator", PLUGIN_VERSION = "1.0.0";
+        internal const string PLUGIN_GUID = "butterystancakes.lethalcompany.halloweenelevator", PLUGIN_NAME = "Halloween Elevator", PLUGIN_VERSION = "1.0.1";
         internal static new ManualLogSource Logger;
+
+        const string GUID_LOBBY_COMPATIBILITY = "BMX.LobbyCompatibility";
 
         internal static ConfigEntry<float> configChance;
         internal static ConfigEntry<bool> configEclipse, configFog;
@@ -18,6 +22,12 @@ namespace HalloweenElevator
         void Awake()
         {
             Logger = base.Logger;
+
+            if (Chainloader.PluginInfos.ContainsKey(GUID_LOBBY_COMPATIBILITY))
+            {
+                Logger.LogInfo("CROSS-COMPATIBILITY - Lobby Compatibility detected");
+                LobbyCompatibility.Init();
+            }
 
             configChance = Config.Bind(
                 "Criteria",
